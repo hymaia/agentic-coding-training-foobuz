@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Foobuz Player{% endblock %}
+
+{% block body %}
+    <main class="app-shell" data-api-playlists-url="{{ path('api_playlists_list') }}">
+        <header class="app-header">
+            <h1>Foobuz</h1>
+            <p>Minimal playlist player</p>
+        </header>
+
+        {% include 'components/_playlist_tabs.html.twig' %}
+        {% include 'components/_player.html.twig' %}
+    </main>
+{% endblock %}

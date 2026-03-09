@@ -1,0 +1,48 @@
+{
+  "playlists": [
+    {
+      "id": "night-drive",
+      "name": "Night Drive",
+      "description": "Cold city loops and late traffic lights.",
+      "cover": "/images/cover-night.jpg",
+      "tracks": [
+        {
+          "id": "nd-1",
+          "title": "Concrete Pulse",
+          "artist": "Double Zero",
+          "audioUrl": "/media/track-1.mp3",
+          "cover": "/images/cover-night.jpg"
+        },
+        {
+          "id": "nd-2",
+          "title": "Headlights",
+          "artist": "Monotone Unit",
+          "audioUrl": "/media/track-2.mp3",
+          "cover": "/images/cover-night.jpg"
+        }
+      ]
+    },
+    {
+      "id": "mono-focus",
+      "name": "Mono Focus",
+      "description": "Minimal beats for deep concentration.",
+      "cover": "/images/cover-focus.jpg",
+      "tracks": [
+        {
+          "id": "mf-1",
+          "title": "Edge of Silence",
+          "artist": "Paper Avenue",
+          "audioUrl": "/media/track-3.mp3",
+          "cover": "/images/cover-focus.jpg"
+        },
+        {
+          "id": "mf-2",
+          "title": "Parallel Black",
+          "artist": "The Short Circuit",
+          "audioUrl": "/media/track-4.mp3",
+          "cover": "/images/cover-focus.jpg"
+        }
+      ]
+    }
+  ]
+}

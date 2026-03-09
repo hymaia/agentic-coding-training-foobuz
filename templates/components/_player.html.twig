@@ -1,0 +1,30 @@
+<section class="player" aria-label="Music player">
+    <img id="cover" class="player__cover" src="" alt="Current track cover">
+
+    <div class="player__meta">
+        <p id="playlist-name" class="player__playlist">Playlist</p>
+        <h2 id="track-title" class="player__title">Select a playlist</h2>
+        <p id="track-artist" class="player__artist">Artist</p>
+    </div>
+
+    <div class="player__timeline">
+        <span id="current-time" class="player__time">0:00</span>
+        <input id="seekbar" type="range" min="0" max="100" value="0" step="1" aria-label="Seek track">
+        <span id="duration" class="player__time">0:00</span>
+    </div>
+
+    <div class="player__controls" aria-label="Playback controls">
+        <button id="prev" type="button" class="control-btn control-btn--icon" aria-label="Previous track">
+            <img class="control-btn__icon" src="{{ asset('images/icons/skip-back.svg') }}" alt="">
+        </button>
+        <button id="play-toggle" type="button" class="control-btn control-btn--primary control-btn--icon" aria-label="Play or pause">
+            <img id="play-icon" class="control-btn__icon" src="{{ asset('images/icons/play.svg') }}" alt="">
+        </button>
+        <button id="next" type="button" class="control-btn control-btn--icon" aria-label="Next track">
+            <img class="control-btn__icon" src="{{ asset('images/icons/skip-forward.svg') }}" alt="">
+        </button>
+    </div>
+
+    <audio id="audio" preload="metadata"></audio>
+    <p id="status" class="player__status" role="status" aria-live="polite"></p>
+</section>

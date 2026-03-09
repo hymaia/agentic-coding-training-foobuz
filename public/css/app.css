@@ -1,0 +1,186 @@
+:root {
+    --bg: #050505;
+    --panel: #101010;
+    --text: #f9f9f9;
+    --muted: #ababab;
+    --border: #ffffff;
+    --focus: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: radial-gradient(circle at 20% 10%, #171717, #050505 60%);
+    color: var(--text);
+    padding: 1rem;
+}
+
+.app-shell {
+    width: min(100%, 440px);
+    max-width: 440px;
+    margin: 0 auto;
+    border: 2px solid var(--border);
+    background: linear-gradient(180deg, #111, #080808);
+    padding: 1rem;
+}
+
+.app-header h1 {
+    margin: 0;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.app-header p {
+    margin: 0.35rem 0 1rem;
+    color: var(--muted);
+}
+
+.playlist-tabs {
+    margin-bottom: 1rem;
+}
+
+.playlist-tabs__row {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.playlist-tab {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.playlist-tab[aria-selected="true"] {
+    background: var(--text);
+    color: #000;
+}
+
+.player {
+    border: 1px solid var(--border);
+    padding: 0.9rem;
+    background: var(--panel);
+}
+
+.player__cover {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: #000;
+}
+
+.player__meta {
+    text-align: center;
+    padding: 0.9rem 0;
+}
+
+.player__playlist {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.player__title {
+    margin: 0.3rem 0;
+    font-size: 1.45rem;
+}
+
+.player__artist {
+    margin: 0;
+    color: var(--muted);
+}
+
+.player__timeline {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.player__time {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.75rem;
+}
+
+#seekbar {
+    width: 100%;
+    accent-color: #fff;
+}
+
+.player__controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
+    padding-top: 1rem;
+}
+
+.control-btn {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    min-width: 88px;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+}
+
+.control-btn--primary {
+    font-weight: 700;
+}
+
+.control-btn--icon {
+    min-width: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn__icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: block;
+}
+
+.player__status {
+    margin: 1rem 0 0;
+    text-align: center;
+    color: var(--muted);
+    min-height: 1.2em;
+    font-size: 0.85rem;
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+@media (max-width: 580px) {
+    .app-shell {
+        padding: 0.75rem;
+    }
+
+    .player__title {
+        font-size: 1.2rem;
+    }
+
+    .control-btn {
+        min-width: 74px;
+        padding: 0.5rem 0.65rem;
+    }
+
+    .control-btn--icon {
+        min-width: 54px;
+    }
+}
