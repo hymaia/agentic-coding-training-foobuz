@@ -10,7 +10,7 @@ CREATE TABLE playlists (
 
 CREATE TABLE tracks (
     id TEXT PRIMARY KEY,
-    playlist_id TEXT NOT NULL,
+    playlist_id TEXT,
     title TEXT NOT NULL,
     artist TEXT NOT NULL,
     audio_url TEXT NOT NULL,
