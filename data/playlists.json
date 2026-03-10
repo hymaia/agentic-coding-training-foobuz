@@ -8,16 +8,16 @@
       "tracks": [
         {
           "id": "nd-1",
-          "title": "Concrete Pulse",
-          "artist": "Double Zero",
-          "audioUrl": "/media/track-1.mp3",
+          "title": "Maple Leaf Rag",
+          "artist": "Scott Joplin",
+          "audioUrl": "/media/maple-leaf-rag.ogg",
           "cover": "/images/cover-night.jpg"
         },
         {
           "id": "nd-2",
-          "title": "Headlights",
-          "artist": "Monotone Unit",
-          "audioUrl": "/media/track-2.mp3",
+          "title": "Euphonic Sounds",
+          "artist": "Scott Joplin",
+          "audioUrl": "/media/euphonic-sounds.ogg",
           "cover": "/images/cover-night.jpg"
         }
       ]
@@ -30,16 +30,16 @@
       "tracks": [
         {
           "id": "mf-1",
-          "title": "Edge of Silence",
-          "artist": "Paper Avenue",
-          "audioUrl": "/media/track-3.mp3",
+          "title": "Fur Elise",
+          "artist": "Ludwig van Beethoven",
+          "audioUrl": "/media/fur-elise.ogg",
           "cover": "/images/cover-focus.jpg"
         },
         {
           "id": "mf-2",
-          "title": "Parallel Black",
-          "artist": "The Short Circuit",
-          "audioUrl": "/media/track-4.mp3",
+          "title": "Sarabande Wedding March",
+          "artist": "Cesar Cui",
+          "audioUrl": "/media/cui-sar-wedding.ogg",
           "cover": "/images/cover-focus.jpg"
         }
       ]
