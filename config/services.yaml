@@ -7,7 +7,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    app.playlists_file: '%kernel.project_dir%/data/playlists.json'
+    app.playlists_database: '%kernel.project_dir%/data/foobuz.sqlite'
 
 services:
     # default configuration for services in *this* file
@@ -20,7 +20,7 @@ services:
     App\:
         resource: '../src/'
         bind:
-            string $playlistDataPath: '%app.playlists_file%'
+            string $playlistDatabasePath: '%app.playlists_database%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

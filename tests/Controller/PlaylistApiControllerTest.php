@@ -40,13 +40,11 @@ final class PlaylistApiControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testListReturns500WhenJsonIsCorrupt(): void
+    public function testListReturns500WhenDatabaseIsMissing(): void
     {
-        $path = dirname(__DIR__, 2).'/data/playlists.json';
-        $original = file_get_contents($path);
-        self::assertNotFalse($original);
-
-        file_put_contents($path, '{invalid-json');
+        $path = dirname(__DIR__, 2).'/data/foobuz.sqlite';
+        $backup = dirname(__DIR__, 2).'/data/foobuz.sqlite.bak';
+        self::assertTrue(rename($path, $backup));
 
         try {
             $client = static::createClient();
@@ -54,7 +52,7 @@ final class PlaylistApiControllerTest extends WebTestCase
 
             self::assertResponseStatusCodeSame(500);
         } finally {
-            file_put_contents($path, $original);
+            rename($backup, $path);
         }
     }
 }

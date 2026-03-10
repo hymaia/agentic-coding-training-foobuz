@@ -3,10 +3,12 @@
 namespace App\Service;
 
 use App\Exception\PlaylistDataException;
+use PDO;
+use PDOException;
 
 final class PlaylistRepository
 {
-    public function __construct(private readonly string $playlistDataPath)
+    public function __construct(private readonly string $playlistDatabasePath)
     {
     }
 
@@ -15,14 +17,21 @@ final class PlaylistRepository
      */
     public function all(): array
     {
-        $payload = $this->load();
+        $connection = $this->connect();
+        $playlistRows = $connection->query(
+            'SELECT id, name, description, cover FROM playlists ORDER BY sort_order ASC'
+        );
 
-        if (!isset($payload['playlists']) || !is_array($payload['playlists'])) {
-            throw new PlaylistDataException('Playlists payload is missing a playlists array.');
+        if ($playlistRows === false) {
+            throw new PlaylistDataException('Playlist database query failed.');
         }
 
         /** @var array<int, array<string, mixed>> $playlists */
-        $playlists = $payload['playlists'];
+        $playlists = $playlistRows->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($playlists as &$playlist) {
+            $playlist['tracks'] = $this->loadTracks($connection, (string) $playlist['id']);
+        }
 
         return $playlists;
     }
@@ -32,39 +41,78 @@ final class PlaylistRepository
      */
     public function find(string $id): ?array
     {
-        foreach ($this->all() as $playlist) {
-            if (($playlist['id'] ?? null) === $id) {
-                return $playlist;
-            }
+        $connection = $this->connect();
+        $statement = $connection->prepare(
+            'SELECT id, name, description, cover FROM playlists WHERE id = :id LIMIT 1'
+        );
+
+        if ($statement === false) {
+            throw new PlaylistDataException('Playlist database query failed.');
         }
 
-        return null;
+        $statement->bindValue(':id', $id);
+
+        if (!$statement->execute()) {
+            throw new PlaylistDataException('Playlist database query failed.');
+        }
+
+        /** @var array<string, mixed>|false $playlist */
+        $playlist = $statement->fetch(PDO::FETCH_ASSOC);
+        if ($playlist === false) {
+            return null;
+        }
+
+        $playlist['tracks'] = $this->loadTracks($connection, $id);
+
+        return $playlist;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int, array<string, mixed>>
      */
-    private function load(): array
+    private function loadTracks(PDO $connection, string $playlistId): array
     {
-        if (!is_file($this->playlistDataPath)) {
-            throw new PlaylistDataException('Playlist data file was not found.');
+        $statement = $connection->prepare(
+            'SELECT id, title, artist, audio_url AS audioUrl, cover
+             FROM tracks
+             WHERE playlist_id = :playlistId
+             ORDER BY sort_order ASC'
+        );
+
+        if ($statement === false) {
+            throw new PlaylistDataException('Track database query failed.');
         }
 
-        $json = file_get_contents($this->playlistDataPath);
-        if ($json === false) {
-            throw new PlaylistDataException('Playlist data file could not be read.');
+        $statement->bindValue(':playlistId', $playlistId);
+
+        if (!$statement->execute()) {
+            throw new PlaylistDataException('Track database query failed.');
         }
 
         try {
-            $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new PlaylistDataException('Playlist data is not valid JSON.', 0, $exception);
+            /** @var array<int, array<string, mixed>> $tracks */
+            $tracks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
+            throw new PlaylistDataException('Track database query failed.', 0, $exception);
         }
 
-        if (!is_array($decoded)) {
-            throw new PlaylistDataException('Playlist data should decode to an object.');
+        return $tracks;
+    }
+
+    private function connect(): PDO
+    {
+        if (!is_file($this->playlistDatabasePath)) {
+            throw new PlaylistDataException('Playlist database file was not found.');
         }
 
-        return $decoded;
+        try {
+            $connection = new PDO('sqlite:'.$this->playlistDatabasePath);
+            $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
+            throw new PlaylistDataException('Playlist database connection failed.', 0, $exception);
+        }
+
+        return $connection;
     }
 }
