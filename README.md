@@ -19,6 +19,10 @@ Minimal Spotify-style playlist player built with Symfony, Twig, plain CSS, and a
 
 ## Run It
 
+Install Symfony CLI first if `symfony` is not already available on your machine. See the official install instructions for macOS, Windows, and Linux:
+
+- [Symfony Downloads](https://symfony.com/download)
+
 Install dependencies:
 
 ```bash
