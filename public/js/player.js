@@ -1,95 +1,131 @@
-(() => {
-    const app = document.querySelector('.app-shell');
-    if (!app) {
+import $ from 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm';
+
+$(function () {
+    var $app = $('.app-shell');
+
+    if ($app.length === 0) {
         return;
     }
 
-    const apiUrl = app.dataset.apiPlaylistsUrl;
-    const libraryToggle = document.getElementById('playlist-library-toggle');
-    const library = document.getElementById('playlist-library');
-    const libraryList = document.getElementById('playlist-library-list');
-    const player = document.querySelector('.player');
-    const cover = document.getElementById('cover');
-    const playlistName = document.getElementById('playlist-name');
-    const trackTitle = document.getElementById('track-title');
-    const trackArtist = document.getElementById('track-artist');
-    const currentTimeEl = document.getElementById('current-time');
-    const durationEl = document.getElementById('duration');
-    const seekbar = document.getElementById('seekbar');
-    const playToggle = document.getElementById('play-toggle');
-    const playIcon = document.getElementById('play-icon');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
-    const statusEl = document.getElementById('status');
-    const audio = document.getElementById('audio');
+    var apiUrl = $app.attr('data-api-playlists-url');
+    var $libraryToggle = $('#playlist-library-toggle');
+    var $library = $('#playlist-library');
+    var $libraryList = $('#playlist-library-list');
+    var $player = $('.player');
+    var $cover = $('#cover');
+    var $playlistName = $('#playlist-name');
+    var $trackTitle = $('#track-title');
+    var $trackArtist = $('#track-artist');
+    var $currentTime = $('#current-time');
+    var $duration = $('#duration');
+    var $seekbar = $('#seekbar');
+    var $playToggle = $('#play-toggle');
+    var $playIcon = $('#play-icon');
+    var $prev = $('#prev');
+    var $next = $('#next');
+    var $status = $('#status');
+    var audio = $('#audio').get(0);
+    var playlists = [];
+    var playlistIndex = 0;
+    var trackIndex = 0;
 
-    let playlists = [];
-    let playlistIndex = 0;
-    let trackIndex = 0;
+    function formatTime(seconds) {
+        var mins;
+        var secs;
 
-    const formatTime = (seconds) => {
-        if (!Number.isFinite(seconds) || seconds < 0) {
+        if (!isFinite(seconds) || seconds < 0) {
             return '0:00';
         }
 
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
+        mins = Math.floor(seconds / 60);
+        secs = Math.floor(seconds % 60);
 
-        return `${mins}:${String(secs).padStart(2, '0')}`;
-    };
+        if (secs < 10) {
+            secs = '0' + secs;
+        }
 
-    const currentPlaylist = () => playlists[playlistIndex] || null;
-    const currentTrack = () => {
-        const playlist = currentPlaylist();
-        if (!playlist || !Array.isArray(playlist.tracks)) {
+        return mins + ':' + secs;
+    }
+
+    function currentPlaylist() {
+        return playlists[playlistIndex] || null;
+    }
+
+    function currentTrack() {
+        var playlist = currentPlaylist();
+
+        if (!playlist || !$.isArray(playlist.tracks)) {
             return null;
         }
 
         return playlist.tracks[trackIndex] || null;
-    };
+    }
 
-    const syncPlayButton = () => {
-        if (!playIcon) {
+    function syncPlayButton() {
+        if ($playIcon.length === 0 || !audio) {
             return;
         }
 
-        playIcon.src = audio.paused ? '/images/icons/play.svg' : '/images/icons/pause.svg';
-    };
+        $playIcon.attr('src', audio.paused ? '/images/icons/play.svg' : '/images/icons/pause.svg');
+    }
 
-    const openLibrary = () => {
-        if (!library || !player) {
+    function playAudio(onSuccess, onFailure) {
+        var playRequest;
+
+        if (!audio) {
             return;
         }
 
-        library.hidden = false;
-        player.hidden = true;
-    };
+        playRequest = audio.play();
 
-    const closeLibrary = () => {
-        if (!library || !player) {
+        if (playRequest && typeof playRequest.then === 'function') {
+            $.when(playRequest).done(onSuccess).fail(onFailure);
             return;
         }
 
-        library.hidden = true;
-        player.hidden = false;
-    };
+        if (typeof onSuccess === 'function') {
+            onSuccess();
+        }
+    }
 
-    const renderLibrary = () => {
-        if (!libraryList) {
+    function openLibrary() {
+        if ($library.length === 0 || $player.length === 0) {
             return;
         }
 
-        libraryList.innerHTML = '';
-        playlists.forEach((playlist, index) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = `playlist-library__item${index === playlistIndex ? ' is-active' : ''}`;
-            button.innerHTML = `
-                <p class="playlist-library__item-title">${playlist.name}</p>
-                <p class="playlist-library__item-meta">${playlist.description}</p>
-            `;
+        $library.removeAttr('hidden').show().attr('aria-hidden', 'false');
+        $player.attr('hidden', 'hidden').hide().attr('aria-hidden', 'true');
+    }
 
-            button.addEventListener('click', () => {
+    function closeLibrary() {
+        if ($library.length === 0 || $player.length === 0) {
+            return;
+        }
+
+        $library.attr('hidden', 'hidden').hide().attr('aria-hidden', 'true');
+        $player.removeAttr('hidden').show().attr('aria-hidden', 'false');
+    }
+
+    function renderLibrary() {
+        if ($libraryList.length === 0) {
+            return;
+        }
+
+        $libraryList.empty();
+
+        $.each(playlists, function (index, playlist) {
+            var className = 'playlist-library__item';
+            var $button;
+
+            if (index === playlistIndex) {
+                className += ' is-active';
+            }
+
+            $button = $('<button type="button"></button>');
+            $button.addClass(className);
+            $button.append($('<p></p>').addClass('playlist-library__item-title').text(playlist.name || 'Playlist'));
+            $button.append($('<p></p>').addClass('playlist-library__item-meta').text(playlist.description || ''));
+            $button.on('click', function () {
                 playlistIndex = index;
                 trackIndex = 0;
                 renderLibrary();
@@ -97,157 +133,172 @@
                 closeLibrary();
             });
 
-            libraryList.appendChild(button);
+            $libraryList.append($button);
         });
-    };
+    }
 
-    const updateMeta = () => {
-        const playlist = currentPlaylist();
-        const track = currentTrack();
+    function updateMeta() {
+        var playlist = currentPlaylist();
+        var track = currentTrack();
 
         if (!playlist || !track) {
-            playlistName.textContent = 'Playlist';
-            trackTitle.textContent = 'No track available';
-            trackArtist.textContent = '-';
-            cover.removeAttribute('src');
-            cover.alt = 'No cover available';
+            $playlistName.text('Playlist');
+            $trackTitle.text('No track available');
+            $trackArtist.text('-');
+            $cover.removeAttr('src').attr('alt', 'No cover available');
             return;
         }
 
-        playlistName.textContent = playlist.name;
-        trackTitle.textContent = track.title;
-        trackArtist.textContent = track.artist;
-        cover.src = track.cover || playlist.cover;
-        cover.alt = `${track.title} cover`;
-    };
+        $playlistName.text(playlist.name);
+        $trackTitle.text(track.title);
+        $trackArtist.text(track.artist);
+        $cover.attr('src', track.cover || playlist.cover || '').attr('alt', (track.title || 'Track') + ' cover');
+    }
 
-    const loadTrack = (autoplay) => {
-        const track = currentTrack();
+    function loadTrack(autoplay) {
+        var track = currentTrack();
+
         updateMeta();
 
-        if (!track) {
-            audio.removeAttribute('src');
-            audio.load();
+        if (!track || !audio) {
+            if (audio) {
+                audio.removeAttribute('src');
+                audio.load();
+            }
+
             syncPlayButton();
             return;
         }
 
         audio.src = track.audioUrl;
         audio.load();
-        seekbar.value = '0';
-        currentTimeEl.textContent = '0:00';
-        durationEl.textContent = '0:00';
-        statusEl.textContent = `Loaded: ${track.title}`;
+        $seekbar.val('0');
+        $currentTime.text('0:00');
+        $duration.text('0:00');
+        $status.text('Loaded: ' + track.title);
 
         if (autoplay) {
-            void audio.play().catch(() => {
-                statusEl.textContent = 'Press play to start audio';
+            playAudio(function () {
+                $status.text('Playing');
+            }, function () {
+                $status.text('Press play to start audio');
             });
         }
 
         syncPlayButton();
-    };
+    }
 
-    const skip = (direction) => {
-        const playlist = currentPlaylist();
-        if (!playlist || !Array.isArray(playlist.tracks) || playlist.tracks.length === 0) {
+    function skip(direction) {
+        var playlist = currentPlaylist();
+        var lastIndex;
+
+        if (!playlist || !$.isArray(playlist.tracks) || playlist.tracks.length === 0) {
             return;
         }
 
-        const lastIndex = playlist.tracks.length - 1;
-        trackIndex = direction > 0 ? Math.min(trackIndex + 1, lastIndex) : Math.max(trackIndex - 1, 0);
-        loadTrack(!audio.paused);
-    };
+        lastIndex = playlist.tracks.length - 1;
 
-    const restartCurrentTrack = async () => {
-        audio.currentTime = 0;
-        seekbar.value = '0';
-        currentTimeEl.textContent = '0:00';
-
-        try {
-            await audio.play();
-            statusEl.textContent = 'Restarted track';
-        } catch {
-            statusEl.textContent = 'Press play to start audio';
+        if (direction > 0) {
+            trackIndex = Math.min(trackIndex + 1, lastIndex);
+        } else {
+            trackIndex = Math.max(trackIndex - 1, 0);
         }
-    };
 
-    playToggle.addEventListener('click', async () => {
+        loadTrack(audio && !audio.paused);
+    }
+
+    function restartCurrentTrack() {
+        if (!audio) {
+            return;
+        }
+
+        audio.currentTime = 0;
+        $seekbar.val('0');
+        $currentTime.text('0:00');
+
+        playAudio(function () {
+            $status.text('Restarted track');
+        }, function () {
+            $status.text('Press play to start audio');
+        });
+    }
+
+    $playToggle.on('click', function () {
+        if (!audio) {
+            return;
+        }
+
         if (!audio.src) {
             loadTrack(false);
         }
 
         if (audio.paused) {
-            try {
-                await audio.play();
-                statusEl.textContent = 'Playing';
-            } catch {
-                statusEl.textContent = 'Playback blocked. Interact and try again.';
-            }
+            playAudio(function () {
+                $status.text('Playing');
+                syncPlayButton();
+            }, function () {
+                $status.text('Playback blocked. Interact and try again.');
+                syncPlayButton();
+            });
         } else {
             audio.pause();
-            statusEl.textContent = 'Paused';
+            $status.text('Paused');
+            syncPlayButton();
         }
-
-        syncPlayButton();
     });
 
-    prevBtn.addEventListener('click', () => {
-        if (audio.currentTime > 3) {
-            void restartCurrentTrack();
+    $prev.on('click', function () {
+        if (audio && audio.currentTime > 3) {
+            restartCurrentTrack();
             return;
         }
 
         skip(-1);
     });
-    nextBtn.addEventListener('click', () => skip(1));
 
-    if (libraryToggle) {
-        libraryToggle.addEventListener('click', () => {
-            openLibrary();
-        });
-    }
-
-    audio.addEventListener('loadedmetadata', () => {
-        durationEl.textContent = formatTime(audio.duration);
-    });
-
-    audio.addEventListener('timeupdate', () => {
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-
-        if (Number.isFinite(audio.duration) && audio.duration > 0) {
-            seekbar.value = String(Math.round((audio.currentTime / audio.duration) * 100));
-        }
-    });
-
-    audio.addEventListener('play', syncPlayButton);
-    audio.addEventListener('pause', syncPlayButton);
-
-    audio.addEventListener('ended', () => {
+    $next.on('click', function () {
         skip(1);
     });
 
-    seekbar.addEventListener('input', () => {
-        if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+    $libraryToggle.on('click', function () {
+        openLibrary();
+    });
+
+    $(audio).on('loadedmetadata', function () {
+        $duration.text(formatTime(audio.duration));
+    });
+
+    $(audio).on('timeupdate', function () {
+        $currentTime.text(formatTime(audio.currentTime));
+
+        if (isFinite(audio.duration) && audio.duration > 0) {
+            $seekbar.val(String(Math.round((audio.currentTime / audio.duration) * 100)));
+        }
+    });
+
+    $(audio).on('play pause', function () {
+        syncPlayButton();
+    });
+
+    $(audio).on('ended', function () {
+        skip(1);
+    });
+
+    $seekbar.on('input change', function () {
+        if (!audio || !isFinite(audio.duration) || audio.duration <= 0) {
             return;
         }
 
-        audio.currentTime = (Number(seekbar.value) / 100) * audio.duration;
+        audio.currentTime = (Number($seekbar.val()) / 100) * audio.duration;
     });
 
-    fetch(apiUrl)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('playlist-api-failed');
-            }
-
-            return response.json();
-        })
-        .then((payload) => {
-            playlists = Array.isArray(payload.playlists) ? payload.playlists : [];
+    $.getJSON(apiUrl)
+        .done(function (payload) {
+            playlists = $.isArray(payload.playlists) ? payload.playlists : [];
 
             if (playlists.length === 0) {
-                throw new Error('no-playlists');
+                $status.text('Unable to load playlists');
+                return;
             }
 
             playlistIndex = 0;
@@ -256,9 +307,7 @@
             closeLibrary();
             loadTrack(false);
         })
-        .catch(() => {
-            statusEl.textContent = 'Unable to load playlists';
-            trackTitle.textContent = 'API unavailable';
-            trackArtist.textContent = '-';
+        .fail(function () {
+                $status.text('Unable to load playlists');
         });
-})();
+});
