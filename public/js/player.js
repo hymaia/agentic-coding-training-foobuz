@@ -5,7 +5,10 @@
     }
 
     const apiUrl = app.dataset.apiPlaylistsUrl;
-    const tabsContainer = document.getElementById('playlist-tabs');
+    const libraryToggle = document.getElementById('playlist-library-toggle');
+    const library = document.getElementById('playlist-library');
+    const libraryList = document.getElementById('playlist-library-list');
+    const player = document.querySelector('.player');
     const cover = document.getElementById('cover');
     const playlistName = document.getElementById('playlist-name');
     const trackTitle = document.getElementById('track-title');
@@ -53,25 +56,48 @@
         playIcon.src = audio.paused ? '/images/icons/play.svg' : '/images/icons/pause.svg';
     };
 
-    const renderTabs = () => {
-        tabsContainer.innerHTML = '';
+    const openLibrary = () => {
+        if (!library || !player) {
+            return;
+        }
 
+        library.hidden = false;
+        player.hidden = true;
+    };
+
+    const closeLibrary = () => {
+        if (!library || !player) {
+            return;
+        }
+
+        library.hidden = true;
+        player.hidden = false;
+    };
+
+    const renderLibrary = () => {
+        if (!libraryList) {
+            return;
+        }
+
+        libraryList.innerHTML = '';
         playlists.forEach((playlist, index) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'playlist-tab';
-            button.role = 'tab';
-            button.setAttribute('aria-selected', String(index === playlistIndex));
-            button.textContent = playlist.name;
+            button.className = `playlist-library__item${index === playlistIndex ? ' is-active' : ''}`;
+            button.innerHTML = `
+                <p class="playlist-library__item-title">${playlist.name}</p>
+                <p class="playlist-library__item-meta">${playlist.description}</p>
+            `;
 
             button.addEventListener('click', () => {
                 playlistIndex = index;
                 trackIndex = 0;
-                renderTabs();
+                renderLibrary();
                 loadTrack(false);
+                closeLibrary();
             });
 
-            tabsContainer.appendChild(button);
+            libraryList.appendChild(button);
         });
     };
 
@@ -176,6 +202,12 @@
     });
     nextBtn.addEventListener('click', () => skip(1));
 
+    if (libraryToggle) {
+        libraryToggle.addEventListener('click', () => {
+            openLibrary();
+        });
+    }
+
     audio.addEventListener('loadedmetadata', () => {
         durationEl.textContent = formatTime(audio.duration);
     });
@@ -220,7 +252,8 @@
 
             playlistIndex = 0;
             trackIndex = 0;
-            renderTabs();
+            renderLibrary();
+            closeLibrary();
             loadTrack(false);
         })
         .catch(() => {

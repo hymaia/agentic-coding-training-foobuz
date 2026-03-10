@@ -12,7 +12,8 @@ final class HomeControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('#playlist-tabs');
+        self::assertSelectorExists('#playlist-library-toggle');
+        self::assertSelectorExists('#playlist-library');
         self::assertSelectorExists('#play-toggle');
         self::assertSelectorExists('#prev');
         self::assertSelectorExists('#next');
